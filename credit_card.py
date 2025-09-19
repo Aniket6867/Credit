@@ -8,10 +8,13 @@ Created on Fri Sep 19 19:09:39 2025
 import numpy as np
 import pickle
 import streamlit as st
+import os
 
-# Load the saved model
-model_path = r"C:\Users\HP\OneDrive\Desktop\ja\credit_card_model.sav"
-loaded_model = pickle.load(open(model_path, 'rb'))
+# Load the saved model (from same repo folder)
+model_path = os.path.join(os.path.dirname(__file__), "credit_card_model.sav")
+
+with open(model_path, "rb") as f:
+    loaded_model = pickle.load(f)
 
 # Prediction function
 def fraud_prediction(input_data):
@@ -45,4 +48,3 @@ input_data = [time] + features + [amount]
 if st.button("Check Transaction"):
     result = fraud_prediction(input_data)
     st.success(result)
-
