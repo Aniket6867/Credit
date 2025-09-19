@@ -10,39 +10,29 @@ import pickle
 import streamlit as st
 import os
 
-# Load the saved model (from same repo folder)
+# Path relative to this file
 model_path = os.path.join(os.path.dirname(__file__), "credit_card_model.sav")
 
-with open(model_path, "rb") as f:
-    loaded_model = pickle.load(f)
+try:
+    with open(model_path, "rb") as f:
+        loaded_model = pickle.load(f)
+except FileNotFoundError:
+    st.error("❌ Model file not found! Make sure 'credit_card_model.sav' is uploaded to your GitHub repo.")
+    st.stop()
 
 # Prediction function
 def fraud_prediction(input_data):
-    input_array = np.array(input_data).reshape(1, -1)  # reshape into 2D
+    input_array = np.array(input_data).reshape(1, -1)
     prediction = loaded_model.predict(input_array)
-    
-    if prediction[0] == 0:
-        return "✅ Normal Transaction"
-    else:
-        return "⚠️ Fraudulent Transaction"
+    return "✅ Normal Transaction" if prediction[0] == 0 else "⚠️ Fraudulent Transaction"
 
 # Streamlit UI
 st.title("💳 Credit Card Fraud Detection")
 
-st.write("Enter transaction details:")
-
-# Input fields for all features
 time = st.number_input("Time", value=0.0)
-
-# V1 - V28
-features = []
-for i in range(1, 29):
-    value = st.number_input(f"V{i}", value=0.0)
-    features.append(value)
-
+features = [st.number_input(f"V{i}", value=0.0) for i in range(1, 29)]
 amount = st.number_input("Amount", value=0.0)
 
-# Collect all inputs in correct order
 input_data = [time] + features + [amount]
 
 if st.button("Check Transaction"):
